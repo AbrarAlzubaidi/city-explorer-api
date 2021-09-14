@@ -2,6 +2,7 @@
 const express = require('express');
 const app = express(); // class that create a new API
 const cors = require('cors');
+const axios = require('axios')
 app.use(cors()); // connect API with cors
 require('dotenv').config(); // import dotenv
 const weatherData = require('./data/weather.json');
@@ -11,37 +12,42 @@ app.listen(PORT, () => {
     console.log('hello');
 });
 
-app.get('/weather', (req, res) => {
+
+let handleWeatherData = async (req, res) => {
     // define and get the query parameters
     let lat = Number(req.query.lat);
     let lon = Number(req.query.lon);
-    let searchQuery= req.query.searchQuery;
+    let url = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${lat}&lon=${lon}&key=${process.env.WEATHER_API_KEY}`;
+    let response = await axios.get(url);
+    let weatherData = response.data;
+    let filterdData = weatherData.data.map(value => {
+        console.log(value.datetime)
+        return new Forecast(value.datetime, value.weather.description)
+    })
+    res.status(200).json(filterdData)
+}
 
-    // after getting the parameters get the cities that hold these parameters
-    if (lat && lon || searchQuery) {
-        let data = [];
-        // check if the parameters in the weather data or not if it is true then push it inside array
-        weatherData.find(value => {
-            (value.lat === lat && value.lon === lon || value.searchQuery=== searchQuery) && data.push(value);
-        })
-        console.log('data', data);
+app.get('/weather', handleWeatherData)
 
-        let city = data[0];
-        console.log('city', city);
 
-        if (data.length > 0) {
-            let forecast = city.data.map(value => {
-                return {
-                    date: value.datetime,
-                    description: value.weather.description
-                }
-            })
-            res.status(200).json(forecast);
-        } else {
-            alert('Error404: city not found')
-            //send(" Error: city not found")
-        }
-    } else {
-        res.status(400).send("Error: on Query Parameters");
+class Forecast {
+    constructor(date, description) {
+        this.date = date;
+        this.description = description;
     }
-})
+
+}
+
+//=======================================
+
+// function handleMovieData=async(req,res) {
+//     let url = `https://api.themoviedb.org/3/movie/76341?api_key=${process.env.MOVIE_API_KEY}`;
+//     let response = await axios.get(url);
+//     let movieData = response.data;
+//     let filterdData = movieData.data.map(value => {
+//         return new Forecast(value.datetime, value.weather.description)
+//     })
+//     res.status(200).json(filterdData)
+// }
+
+// app.get(`/movies`, handleMovieData)
