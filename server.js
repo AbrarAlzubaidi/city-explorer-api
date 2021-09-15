@@ -22,17 +22,17 @@ let handleWeatherData = async (req, res) => {
     let weatherData = response.data;
     let filterdData = weatherData.data.map(value => {
         console.log(value.datetime)
-        return new Forecast(value.datetime, value.weather.description)
+        return new ForecastWeather(value.datetime, value.weather.description)
     })
     res.status(200).json(filterdData)
 }
 
 app.get('/weather', handleWeatherData)
 
-app.get('/', (res,req)=>{
+app.get('/', (res, req) => {
     res.send('home route ^^')
 })
-class Forecast {
+class ForecastWeather {
     constructor(date, description) {
         this.date = date;
         this.description = description;
@@ -42,14 +42,32 @@ class Forecast {
 
 //=======================================
 
-// function handleMovieData=async(req,res) {
-//     let url = `https://api.themoviedb.org/3/movie/76341?api_key=${process.env.MOVIE_API_KEY}`;
-//     let response = await axios.get(url);
-//     let movieData = response.data;
-//     let filterdData = movieData.data.map(value => {
-//         return new Forecast(value.datetime, value.weather.description)
-//     })
-//     res.status(200).json(filterdData)
-// }
+let handleMovieData = async (req, res) => {
+    // define and get the query parameters
+    let searchQuery = req.query.searchQuery;
+    let url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&query=${searchQuery}`;
+    let response = await axios.get(url);
+    let movieData = response.data;
+    console.log(movieData);
 
-// app.get(`/movies`, handleMovieData)
+    let filterdData = movieData.results.map(value => {
+        return new ForecastMovie(value.title, value.overview, value.vote_average, value.vote_count, value.poster_path, value.popularity, value.release_date)
+    })
+    res.status(200).send(filterdData);
+    }
+
+
+class ForecastMovie {
+    constructor(title, overview, vote_average, vote_count, poster_path, popularity, release_date) {
+        this.title = title;
+        this.overview = overview;
+        this.vote_average = vote_average;
+        this.vote_count = vote_count;
+        this.poster_path = poster_path;
+        this.popularity = popularity;
+        this.release_date = release_date;
+    }
+
+}
+
+app.get(`/movies`, handleMovieData)
