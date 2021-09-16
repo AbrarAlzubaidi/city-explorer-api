@@ -29,9 +29,7 @@ let handleWeatherData = async (req, res) => {
 
 app.get('/weather', handleWeatherData)
 
-app.get('/', (res, req) => {
-    res.send('home route ^^')
-})
+
 class ForecastWeather {
     constructor(date, description) {
         this.date = date;
@@ -39,7 +37,9 @@ class ForecastWeather {
     }
 
 }
-
+app.get('/', (res, req) => {
+    res.send('home route ^^')
+})
 //=======================================
 
 let handleMovieData = async (req, res) => {
