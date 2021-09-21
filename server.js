@@ -10,8 +10,8 @@ const handleMovieData = require('./controllers/movie');
 
 const PORT = process.env.PORT;
 
-app.get('/', (res, req) => {
-    res.send('home route')
+app.get('/', function (req, res) {
+    res.send('hello world')
 })
 app.get('/weather', handleWeatherData)
 
